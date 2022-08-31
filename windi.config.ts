@@ -7,6 +7,12 @@ export default defineConfig({
         primary: {
           DEFAULT: "#0d9488",
         },
+        up: {
+          DEFAULT: "#EF5350",
+        },
+        down: {
+          DEFAULT: "#26A69A",
+        },
       },
       screens: {
         sm: "576px",

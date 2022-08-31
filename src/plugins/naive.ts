@@ -17,11 +17,16 @@ import {
   NSwitch,
   NCheckboxGroup,
   NCheckbox,
+  NRadioGroup,
+  NRadioButton,
   NDataTable,
   NDrawer,
   NDrawerContent,
   NTooltip,
   NModal,
+  NDivider,
+  NTabs,
+  NTabPane,
 } from "naive-ui";
 import "vfonts/Lato.css";
 
@@ -43,11 +48,16 @@ const naive = create({
     NSwitch,
     NCheckboxGroup,
     NCheckbox,
+    NRadioGroup,
+    NRadioButton,
     NDataTable,
     NDrawer,
     NDrawerContent,
     NTooltip,
     NModal,
+    NDivider,
+    NTabs,
+    NTabPane,
   ],
 });
 

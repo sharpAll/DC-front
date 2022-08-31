@@ -1,7 +1,9 @@
 <template>
   <div class="w-full h-full component-content">
     <div class="flex h-full">
-      <div class="w-40px border-gray-200 border-r pt-10px text-center">
+      <div
+        class="w-40px flex-shrink-0 border-gray-200 border-r pt-10px text-center"
+      >
         <n-tooltip trigger="hover" placement="right">
           <template #trigger>
             <n-button
@@ -218,22 +220,13 @@
           清除痕迹
         </n-tooltip>
       </div>
-      <div class="flex-1 flex flex-col">
-        <div class="h-40px pt-4px pl-10px border-gray-200 border-b">
+      <div class="flex-auto flex flex-col">
+        <div class="py-3px pl-10px border-gray-200 border-b">
           <n-space>
             <n-button text size="large" @click="openIndexModal"
               ><template #icon>
                 <n-icon>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    xmlns:xlink="http://www.w3.org/1999/xlink"
-                    viewBox="0 0 1024 1024"
-                  >
-                    <path
-                      d="M888 792H200V168c0-4.4-3.6-8-8-8h-56c-4.4 0-8 3.6-8 8v688c0 4.4 3.6 8 8 8h752c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM305.8 637.7c3.1 3.1 8.1 3.1 11.3 0l138.3-137.6L583 628.5c3.1 3.1 8.2 3.1 11.3 0l275.4-275.3c3.1-3.1 3.1-8.2 0-11.3l-39.6-39.6a8.03 8.03 0 0 0-11.3 0l-230 229.9L461.4 404a8.03 8.03 0 0 0-11.3 0L266.3 586.7a8.03 8.03 0 0 0 0 11.3l39.5 39.7z"
-                      fill="currentColor"
-                    ></path>
-                  </svg>
+                  <LineChartOutlined />
                 </n-icon> </template
               >指标</n-button
             >
@@ -255,7 +248,21 @@
             </n-switch>
           </n-space>
         </div>
-        <div ref="klinebox" class="flex-auto"></div>
+        <div ref="klinebox" class="flex-auto overflow-y-hidden"></div>
+        <div
+          v-show="isDetailListShow"
+          class="h-300px flex-shrink-0 border-gray-200 border-t"
+        >
+          <DetailList @close="closeDetailList" />
+        </div>
+      </div>
+      <div class="w-220px flex-shrink-0 border-gray-200 border-l">
+        <template v-if="curType == 'stock'">
+          <DealFormStock @show-detail-list="showDetailList" />
+        </template>
+        <template v-else>
+          <DealFormFutures @show-detail-list="showDetailList" />
+        </template>
       </div>
     </div>
     <n-modal
@@ -285,152 +292,64 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, unref, onMounted } from "vue";
+import { ref, unref, onMounted, nextTick } from "vue";
 import { init, Chart, ShapeTemplate } from "klinecharts";
-import { checkCoordinateOnSegment } from "klinecharts/lib/shape/shapeHelper";
-import generatedKLineDataList from "./generatedKLineDataList";
 import IndexForm from "./components/indexForm.vue";
+import DealFormStock from "./components/dealFormStock.vue";
+import DealFormFutures from "./components/dealFormFutures.vue";
+import DetailList from "./components/detailList.vue";
 import { format } from "date-fns";
+import { LineChartOutlined } from "@vicons/antd";
+import { tushareApi } from "/@/api/kline";
+import {
+  candleStyle,
+  rect,
+  circle,
+  annotationDealDrawExtend,
+  annotationEventPointStyle,
+} from "./kLineOptions";
 const klinebox = ref();
 let kLineChart: undefined | Chart;
-const kLineArray = generatedKLineDataList();
+let kLineArray: any[] = [];
 onMounted(() => {
-  kLineChart = init(unref(klinebox), {
-    candle: {
-      bar: {
-        upColor: "#EF5350",
-        downColor: "#26A69A",
-        noChangeColor: "#26A69A",
-      },
-      priceMark: {
-        last: {
-          upColor: "#EF5350",
-          downColor: "#26A69A",
-          noChangeColor: "#26A69A",
-        },
-      },
-    },
-  });
+  kLineChart = init(unref(klinebox), candleStyle);
   kLineChart.addShapeTemplate([rect, circle] as ShapeTemplate[]);
-  kLineChart.applyNewData(kLineArray);
+  getData("600519.SH");
 });
+/** 数据获取start **/
+const getData = async (value: string) => {
+  const params = {
+    api_name: "daily",
+    token: "297516691cce2e8a4a25102a620041cb60a8ce353b8f80c0455b0564",
+    params: { ts_code: value },
+    fields: "ts_code,trade_date,open,high,low,close,pct_chg,vol",
+  };
+  const res = await tushareApi(params);
+  if (res.code === 0) {
+    const fields = res.data.fields;
+    const items = res.data.items.reverse();
+    kLineArray = items.map((item: any) => {
+      return {
+        timestamp: new Date(
+          `${item[1].substr(0, 4)}-${item[1].substr(4, 2)}-${item[1].substr(
+            6,
+            2
+          )} 00:00`
+        ).getTime(),
+        open: item[2],
+        high: item[3],
+        low: item[4],
+        close: item[5],
+        pct_chg: item[6],
+        volume: item[7],
+      };
+    });
+    (kLineChart as Chart).applyNewData(kLineArray);
+  }
+};
+/** 数据获取 end **/
 
 /** 绘制图形start **/
-const rect = {
-  name: "rect",
-  totalStep: 3,
-  checkEventCoordinateOnShape: ({ dataSource, eventCoordinate }: any) => {
-    return checkCoordinateOnSegment(
-      dataSource[0],
-      dataSource[1],
-      eventCoordinate
-    );
-  },
-  createShapeDataSource: ({ coordinates }: any) => {
-    if (coordinates.length === 2) {
-      return [
-        {
-          type: "line",
-          isDraw: false,
-          isCheck: true,
-          dataSource: [
-            [
-              { ...coordinates[0] },
-              { x: coordinates[1].x, y: coordinates[0].y },
-            ],
-            [
-              { x: coordinates[1].x, y: coordinates[0].y },
-              { ...coordinates[1] },
-            ],
-            [
-              { ...coordinates[1] },
-              { x: coordinates[0].x, y: coordinates[1].y },
-            ],
-            [
-              { x: coordinates[0].x, y: coordinates[1].y },
-              { ...coordinates[0] },
-            ],
-          ],
-        },
-        {
-          type: "polygon",
-          isDraw: true,
-          isCheck: false,
-          styles: {
-            style: "fill",
-            fill: {
-              color: "rgba(33, 150, 243, 0.1)",
-            },
-          },
-          dataSource: [
-            [
-              { ...coordinates[0] },
-              { x: coordinates[1].x, y: coordinates[0].y },
-              { ...coordinates[1] },
-              { x: coordinates[0].x, y: coordinates[1].y },
-            ],
-          ],
-        },
-        {
-          type: "polygon",
-          isDraw: true,
-          isCheck: false,
-          dataSource: [
-            [
-              { ...coordinates[0] },
-              { x: coordinates[1].x, y: coordinates[0].y },
-              { ...coordinates[1] },
-              { x: coordinates[0].x, y: coordinates[1].y },
-            ],
-          ],
-        },
-      ];
-    }
-    return [];
-  },
-};
-const circle = {
-  name: "circle",
-  totalStep: 3,
-  checkEventCoordinateOnShape: ({ dataSource, eventCoordinate }: any) => {
-    const xDis = Math.abs(dataSource.x - eventCoordinate.x);
-    const yDis = Math.abs(dataSource.y - eventCoordinate.y);
-    const r = Math.sqrt(xDis * xDis + yDis * yDis);
-    return Math.abs(r - dataSource.radius) < 3;
-  },
-  createShapeDataSource: ({ coordinates }: any) => {
-    if (coordinates.length === 2) {
-      const xDis = Math.abs(coordinates[0].x - coordinates[1].x);
-      const yDis = Math.abs(coordinates[0].y - coordinates[1].y);
-      const radius = Math.sqrt(xDis * xDis + yDis * yDis);
-      return [
-        {
-          type: "arc",
-          isDraw: true,
-          isCheck: false,
-          styles: {
-            style: "fill",
-            fill: {
-              color: "rgba(33, 150, 243, 0.1)",
-            },
-          },
-          dataSource: [
-            { ...coordinates[0], radius, startAngle: 0, endAngle: Math.PI * 2 },
-          ],
-        },
-        {
-          type: "arc",
-          isDraw: true,
-          isCheck: true,
-          dataSource: [
-            { ...coordinates[0], radius, startAngle: 0, endAngle: Math.PI * 2 },
-          ],
-        },
-      ];
-    }
-    return [];
-  },
-};
 const setShapeType = (key: string) => {
   (kLineChart as Chart).createShape(key);
 };
@@ -495,17 +414,7 @@ function createAnnotationEventPoints(array) {
       point: {
         timestamp: item.timestamp,
       },
-      styles: {
-        offset: [-10, 0],
-        position: "bottom",
-        symbol: {
-          type: "diamond",
-          size: 8,
-          color: "#1e88e5",
-          activeSize: 10,
-          activeColor: "#FF9600",
-        },
-      },
+      styles: annotationEventPointStyle,
       onClick: function ({ id, points, event }) {
         console.log(id, points, event);
         eventTime.value = format(points.timestamp, "yyyy-MM-dd HH:mm:ss");
@@ -513,61 +422,6 @@ function createAnnotationEventPoints(array) {
       },
     };
   });
-}
-function annotationDrawExtend(
-  ctx,
-  coordinate,
-  text: string,
-  colorStr: string,
-  position = "bottom",
-  type = "fill"
-) {
-  ctx.font = "12px Roboto";
-  ctx.fillStyle = colorStr;
-  ctx.strokeStyle = colorStr;
-  ctx.lineWidth = 2;
-
-  const textWidth = ctx.measureText(text).width;
-  const rectWidth = textWidth + 12;
-  const rectHeight = 28;
-  const startX = coordinate.x;
-  let startY = position === "bottom" ? coordinate.y : coordinate.y - 70;
-  ctx.beginPath();
-  if (position === "bottom") {
-    ctx.moveTo(startX, startY);
-    startY += 5;
-    ctx.lineTo(startX - 4, startY);
-    ctx.lineTo(startX + 4, startY);
-  } else {
-    ctx.moveTo(startX, startY + rectHeight);
-    startY -= 5;
-    ctx.lineTo(startX - 4, startY + rectHeight);
-    ctx.lineTo(startX + 4, startY + rectHeight);
-  }
-  ctx.closePath();
-  ctx.fill();
-
-  const rectX = startX - textWidth / 2 - 6;
-  const rectY = startY;
-  const r = 2;
-  ctx.beginPath();
-  ctx.moveTo(rectX + r, rectY);
-  ctx.arcTo(rectX + rectWidth, rectY, rectX + rectWidth, rectY + rectHeight, r);
-  ctx.arcTo(
-    rectX + rectWidth,
-    rectY + rectHeight,
-    rectX,
-    rectY + rectHeight,
-    r
-  );
-  ctx.arcTo(rectX, rectY + rectHeight, rectX, rectY, r);
-  ctx.arcTo(rectX, rectY, rectX + rectWidth, rectY, r);
-  ctx.closePath();
-  type === "fill" ? ctx.fill() : ctx.stroke();
-  ctx.fillStyle = type === "fill" ? "#fff" : colorStr;
-  ctx.textBaseline = "middle";
-  ctx.textAlign = "center";
-  ctx.fillText(text, startX, startY + 14);
 }
 function createAnnotationDealPoints(array: any) {
   return [
@@ -581,7 +435,7 @@ function createAnnotationDealPoints(array: any) {
       },
       drawExtend: (params) => {
         const { ctx, coordinate } = params;
-        annotationDrawExtend(
+        annotationDealDrawExtend(
           ctx,
           coordinate,
           "B",
@@ -601,7 +455,7 @@ function createAnnotationDealPoints(array: any) {
       },
       drawExtend: (params) => {
         const { ctx, coordinate } = params;
-        annotationDrawExtend(ctx, coordinate, "S", "#12746b", "top");
+        annotationDealDrawExtend(ctx, coordinate, "S", "#12746b", "top");
       },
     },
     {
@@ -614,7 +468,14 @@ function createAnnotationDealPoints(array: any) {
       },
       drawExtend: (params) => {
         const { ctx, coordinate } = params;
-        annotationDrawExtend(ctx, coordinate, "S", "#12746b", "top", "empty");
+        annotationDealDrawExtend(
+          ctx,
+          coordinate,
+          "S",
+          "#12746b",
+          "top",
+          "empty"
+        );
       },
     },
     {
@@ -627,11 +488,26 @@ function createAnnotationDealPoints(array: any) {
       },
       drawExtend: (params) => {
         const { ctx, coordinate } = params;
-        annotationDrawExtend(ctx, coordinate, "B", "#bb3f3c", "bottom");
+        annotationDealDrawExtend(ctx, coordinate, "B", "#bb3f3c", "bottom");
       },
     },
   ];
 }
 /** 图表注解end **/
+
+/** 订单列表start **/
+const curType = ref("stock");
+const isDetailListShow = ref(false);
+const showDetailList = async () => {
+  isDetailListShow.value = true;
+  await nextTick();
+  (kLineChart as Chart).resize();
+};
+const closeDetailList = async () => {
+  isDetailListShow.value = false;
+  await nextTick();
+  (kLineChart as Chart).resize();
+};
+/** 订单列表 end **/
 </script>
 <style scoped lang="scss"></style>
