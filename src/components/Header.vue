@@ -4,6 +4,7 @@
     <ul class="menu-box">
       <li class="menu-item" @click="go('/home')">首页</li>
       <li class="menu-item" @click="go('/kline')">K线图</li>
+      <li class="menu-item" @click="go('/excel')">Excel</li>
     </ul>
     <div class="tool-box">
       <n-dropdown

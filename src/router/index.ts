@@ -8,6 +8,7 @@ import Home from "/@/views/home/index.vue";
 import Login from "/@/views/login/index.vue";
 import Redirect from "/@/views/redirect/index.vue";
 import Kline from "/@/views/kline/index.vue";
+import Excel from "/@/views/excel/index.vue";
 
 export const RedirectRoute = {
   path: "/redirect",
@@ -63,6 +64,14 @@ const routes = [
           title: "K线图",
         },
         component: Kline,
+      },
+      {
+        path: "/excel",
+        name: "Excel",
+        meta: {
+          title: "excel",
+        },
+        component: Excel,
       },
     ],
   },

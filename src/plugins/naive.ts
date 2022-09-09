@@ -27,6 +27,7 @@ import {
   NDivider,
   NTabs,
   NTabPane,
+  NUpload,
 } from "naive-ui";
 import "vfonts/Lato.css";
 
@@ -58,6 +59,7 @@ const naive = create({
     NDivider,
     NTabs,
     NTabPane,
+    NUpload,
   ],
 });
 
