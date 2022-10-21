@@ -23,8 +23,6 @@ export const candleStyle = {
         "涨跌幅：",
       ],
       values: (kLineData: any) => {
-        const change =
-          ((kLineData.close - kLineData.open) / kLineData.open) * 100;
         return [
           { value: kLineData.open.toFixed(2) },
           { value: kLineData.close.toFixed(2) },
@@ -32,8 +30,8 @@ export const candleStyle = {
           { value: kLineData.low.toFixed(2) },
           { value: `${(kLineData.volume / 1000000).toFixed(2)}M` },
           {
-            value: `${change.toFixed(2)}%`,
-            color: change < 0 ? "#26A69A" : "#EF5350",
+            value: `${kLineData.pct_chg.toFixed(2)}%`,
+            color: kLineData.pct_chg < 0 ? "#26A69A" : "#EF5350",
           },
         ];
       },
