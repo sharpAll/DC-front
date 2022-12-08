@@ -1,29 +1,36 @@
 <template>
   <div class="w-full h-full component-content">
-    <n-data-table :columns="createColumns()" :data="data" />
-    <!-- <pre>{{ JSON.stringify(data, null, 2) }}</pre> -->
+    <div id="screenshotRef">
+      <n-data-table :columns="createColumns()" :data="data" />
+    </div>
     <div class="pt-6">
       <n-space justify="center">
-        <n-button class="mb-6" ghost type="primary" @click="exportExcel"
-          >导出Excel</n-button
-        >
         <n-upload
           :custom-request="customRequest"
           :show-file-list="false"
           @before-upload="beforeUpload"
         >
-          <n-button type="primary">导入Excel</n-button>
+          <n-button ghost type="primary">导入Excel</n-button>
         </n-upload>
+        <n-button class="mb-6" type="primary" @click="exportExcel"
+          >导出Excel</n-button
+        >
+        <n-button class="mb-6" type="info" @click="screenShot"
+          >导出图片</n-button
+        >
+        <n-button class="mb-6" type="info" @click="screenPDF">导出Pdf</n-button>
       </n-space>
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import { h, defineComponent, ref } from "vue";
+import { h, ref } from "vue";
 import { NInput, NDatePicker, NInputNumber } from "naive-ui";
 import type { DataTableColumns, UploadFileInfo } from "naive-ui";
-import { getTime, format, parseISO, subSeconds } from "date-fns";
+import { format, subSeconds } from "date-fns";
 import { write, read, utils } from "xlsx";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 type RowData = {
   key: number;
   index: string;
@@ -201,5 +208,197 @@ function getExcelData(sheetData: any) {
   return content;
 }
 /** 导入excel end **/
+
+/** 保存图片start **/
+/**
+ * @description: base64 to blob
+ */
+function dataURLtoBlob(base64Buf: string): Blob {
+  const arr = base64Buf.split(",");
+  const typeItem = arr[0];
+  const mime = typeItem.match(/:(.*?);/)![1];
+  const bstr = atob(arr[1]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+  return new Blob([u8arr], { type: mime });
+}
+/**
+ * @description:将base64转换为文件
+ */
+function dataURLtoFile(dataurl: string, filename: string): File {
+  const arr = dataurl.split(",");
+  const mime = arr[0].match(/:(.*?);/)![1];
+  const bstr = atob(arr[1]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+  return new File([u8arr], filename, { type: mime });
+}
+/**
+ * 数据转为文件
+ */
+function downloadByData(data: any, filename: string, mime?: string, bom?: any) {
+  const blobData = typeof bom !== "undefined" ? [bom, data] : [data];
+  const blob = new Blob(blobData, { type: mime || "application/octet-stream" });
+  const blobURL = window.URL.createObjectURL(blob);
+  const tempLink = document.createElement("a");
+  tempLink.style.display = "none";
+  tempLink.href = blobURL;
+  tempLink.setAttribute("download", filename);
+  if (typeof tempLink.download === "undefined") {
+    tempLink.setAttribute("target", "_blank");
+  }
+  document.body.appendChild(tempLink);
+  tempLink.click();
+  document.body.removeChild(tempLink);
+  window.URL.revokeObjectURL(blobURL);
+}
+async function addWaterMark(canvas: HTMLCanvasElement, text: string) {
+  const ctx = canvas.getContext("2d");
+  const width = canvas.width;
+  const height = canvas.height;
+  ctx!.font = "36px 微软雅黑";
+  ctx!.fillStyle = "rgba(0,0,0,0.05)";
+  ctx!.strokeStyle = "rgba(0,0,0,0.05)";
+  const wText = ctx?.measureText(text).width as number;
+  ctx!.translate(0, 0);
+  ctx!.rotate((-Math.PI / 180) * 30);
+  const xn = width * 3;
+  const yn = height * 3;
+  let x;
+  let y;
+  const offset = 100;
+  let odd = 0;
+  for (y = -xn; y < yn; y = y + offset) {
+    odd++;
+    for (x = -yn; x < xn; x = x + wText + offset) {
+      if (odd % 2 === 0) {
+        ctx!.fillText(text, x, y);
+        ctx!.strokeText(text, x, y);
+      } else {
+        ctx!.fillText(text, x + wText, y);
+        ctx!.strokeText(text, x + wText, y);
+      }
+    }
+  }
+}
+enum fileType {
+  BLOB = "blob",
+  FILE = "file",
+}
+interface dom2imgFileParams {
+  dom: HTMLElement;
+  fileName?: string;
+  type: fileType;
+  scale?: number;
+  waterMark?: string;
+}
+async function dom2imgFile({
+  dom,
+  fileName,
+  type,
+  scale,
+  waterMark,
+}: dom2imgFileParams): Promise<File | Blob> {
+  if (scale === undefined) {
+    scale = 1;
+  }
+  scale *= window.devicePixelRatio;
+  const width = dom.offsetWidth * scale;
+  const height = dom.offsetHeight * scale;
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const canvasRes: HTMLCanvasElement = await html2canvas(dom, {
+    canvas,
+    width,
+    height,
+    useCORS: true,
+    scale,
+  });
+  /** 水印 start **/
+  if (waterMark) {
+    addWaterMark(canvasRes, waterMark);
+  }
+  /** 水印 end **/
+  const obj = {
+    blob: dataURLtoBlob(canvasRes.toDataURL("image/jpeg", 1)),
+    file: dataURLtoFile(canvasRes.toDataURL("image/jpeg", 1), fileName!),
+  };
+  return obj[type];
+}
+async function screenShot() {
+  const screenshotBlob = await dom2imgFile({
+    dom: document.getElementById("screenshotRef") as HTMLElement,
+    type: fileType.BLOB,
+    waterMark: "sharpAll",
+  });
+  downloadByData(screenshotBlob as Blob, `Excel.jpeg`);
+}
+/** 保存图片end **/
+
+/** 保存PDFstart **/
+async function screenPDF() {
+  html2canvas(document.getElementById("screenshotRef") as HTMLElement, {
+    allowTaint: true,
+    useCORS: true,
+  }).then(async function (canvas: HTMLCanvasElement) {
+    await addWaterMark(canvas, "sharpAll");
+    const A4W = 595.28;
+    const A4H = 841.89;
+    const TOP_ADJUST = 10; // 纵轴偏移误差
+    const clipArray: any = [0]; // 分页切割位置
+    const contentWidth = (
+      document.getElementById("screenshotRef") as HTMLElement
+    ).offsetWidth;
+    const contentHeight = (
+      document.getElementById("screenshotRef") as HTMLElement
+    ).offsetHeight; // 原图总高度
+    const pageHeight = (contentWidth / A4W) * A4H; // 原图单页高度
+    let offsetEle = 0; // 上次分页高度
+    const imgWidth = A4W;
+    const imgHeight = (A4W / contentWidth) * contentHeight; // a4图总高度
+    const PDF = new jsPDF("p", "pt", "a4");
+    const pageData = canvas.toDataURL("image/jpeg", 1.0);
+    const elements = (document.getElementById("screenshotRef") as HTMLElement)
+      .children;
+    for (let i = 0; i < elements.length; i++) {
+      const curEle = elements[i] as HTMLElement;
+      const curH = curEle.offsetTop + curEle.offsetHeight - offsetEle;
+      if (curH > pageHeight) {
+        offsetEle = curEle.offsetTop;
+        clipArray.push(curEle.offsetTop - TOP_ADJUST);
+      }
+    }
+    for (let i = 0; i < clipArray.length; i++) {
+      PDF.addImage(
+        pageData,
+        "JPEG",
+        0,
+        -((clipArray[i] * A4H) / pageHeight),
+        imgWidth,
+        imgHeight
+      );
+      if (i !== clipArray.length - 1) {
+        PDF.setFillColor(255, 255, 255);
+        PDF.rect(
+          0,
+          ((clipArray[i + 1] - clipArray[i]) * A4H) / pageHeight,
+          imgWidth,
+          imgHeight,
+          "F"
+        );
+        PDF.addPage();
+      }
+    }
+    PDF.save(`PDF.pdf`);
+  });
+}
+/** 保存PDFend **/
 </script>
 <style scoped lang="scss"></style>

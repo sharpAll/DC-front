@@ -16,6 +16,8 @@
     "axios": "^0.27.2",
     "date-fns": "^2.29.1",
     "element-resize-detector": "^1.2.4",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.1",
     "klinecharts": "^8.6.1",
     "pinia": "^2.0.14",
     "vue": "^3.2.25",

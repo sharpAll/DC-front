@@ -15,3 +15,4 @@ declare module "*.bmp";
 declare module "*.tiff";
 
 declare module "klinecharts/lib/shape/shapeHelper";
+declare module "html2canvas";
