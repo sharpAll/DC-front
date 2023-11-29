@@ -32,11 +32,11 @@ import { write, read, utils } from "xlsx";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 type RowData = {
-  key: number;
+  key?: number;
   index: string;
-  date: string;
+  date: string | Date;
   value: number;
-  address: string;
+  address?: string;
 };
 const createData = (): RowData[] => [
   {
@@ -89,7 +89,7 @@ const createColumns = (): DataTableColumns<RowData> => [
       return h(NInputNumber, {
         value: row.value,
         onUpdateValue(v) {
-          data.value[index].value = v;
+          data.value[index].value = v as number;
         },
       });
     },

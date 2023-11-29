@@ -5,13 +5,6 @@ dist
 .npmrc
 .cache
 
-test/upload-server/static
-.env
-.env.development
-.env.production
-public/favicon.ico
-tests/server/static
-tests/server/static/upload
 
 .local
 # local env files
