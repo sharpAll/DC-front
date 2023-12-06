@@ -23,7 +23,7 @@
     </div>
   </div>
 </template>
-<script setup lang="ts">
+<script setup lang="ts" name="Excel">
 import { h, ref } from "vue";
 import { NInput, NDatePicker, NInputNumber } from "naive-ui";
 import type { DataTableColumns, UploadFileInfo } from "naive-ui";
@@ -34,24 +34,24 @@ import jsPDF from "jspdf";
 type RowData = {
   key?: number;
   index: string;
-  date: string | Date;
+  date: Number;
   value: number;
   address?: string;
 };
 const createData = (): RowData[] => [
   {
     index: "铁矿01合约持仓",
-    date: new Date(format(new Date(), "yyyy-MM-dd 00:00:00")),
+    date: new Date().getTime(),
     value: 146089,
   },
   {
     index: "铁矿05合约持仓",
-    date: new Date(format(new Date(), "yyyy-MM-dd 00:00:00")),
+    date: new Date().getTime(),
     value: 19518,
   },
   {
     index: "铁矿09合约持仓",
-    date: new Date(format(new Date(), "yyyy-MM-dd 00:00:00")),
+    date: new Date().getTime(),
     value: 758328,
   },
 ];
@@ -73,10 +73,10 @@ const createColumns = (): DataTableColumns<RowData> => [
     title: "Date",
     key: "date",
     render(row, index) {
-      return h(NDatePicker, {
+      return h(NDatePicker as any, {
         value: row.date,
         valueFormat: "yyyy-MM-dd",
-        onUpdateValue(v) {
+        onUpdateValue(v: number) {
           data.value[index].date = v;
         },
       });

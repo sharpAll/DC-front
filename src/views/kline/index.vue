@@ -291,7 +291,7 @@
     </n-modal>
   </div>
 </template>
-<script setup lang="ts">
+<script setup lang="ts" name="Kline">
 import { ref, unref, onMounted, nextTick } from "vue";
 import { init, Chart, ShapeTemplate } from "klinecharts";
 import IndexForm from "./components/indexForm.vue";

@@ -5,7 +5,7 @@
     </div>
   </div>
 </template>
-<script setup lang="ts"></script>
+<script setup lang="ts" name="Home"></script>
 <style scoped lang="scss">
 .bg-box {
   width: 100%;

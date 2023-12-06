@@ -7,3 +7,10 @@ export enum PageEnum {
   // 首页
   BASE_HOME = "/home",
 }
+
+// 无需添加进标签页的页面
+// 无需提供keep-alive功能的页面
+export const WhiteList: string[] = [
+  PageEnum.BASE_LOGIN_NAME,
+  PageEnum.REDIRECT_NAME,
+];

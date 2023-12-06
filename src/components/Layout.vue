@@ -3,12 +3,7 @@
   <div class="content">
     <router-view v-slot="{ Component, route }">
       <transition name="move" mode="out-in">
-        <component
-          :is="Component"
-          v-if="route.meta.isCached == false"
-          :key="route.fullPath"
-        />
-        <keep-alive v-else>
+        <keep-alive :include="keepAliveComponents">
           <component :is="Component" :key="route.fullPath" />
         </keep-alive>
       </transition>
@@ -17,6 +12,12 @@
 </template>
 <script setup lang="ts">
 import vHeader from "./Header.vue";
+import { computed } from "vue";
+import { useAsyncRouteStore } from "/@/store/asyncRoute";
+const asyncRouteStore = useAsyncRouteStore();
+const keepAliveComponents = computed(() => {
+  return asyncRouteStore.keepAliveComponents;
+});
 </script>
 <style scoped lang="scss">
 .content {

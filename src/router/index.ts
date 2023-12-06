@@ -9,6 +9,7 @@ import Login from "/@/views/login/index.vue";
 import Redirect from "/@/views/redirect/index.vue";
 import Kline from "/@/views/kline/index.vue";
 import Excel from "/@/views/excel/index.vue";
+import Cron from "/@/views/cron/index.vue";
 
 export const RedirectRoute = {
   path: "/redirect",
@@ -72,6 +73,14 @@ const routes = [
           title: "excel",
         },
         component: Excel,
+      },
+      {
+        path: "/cron",
+        name: "Cron",
+        meta: {
+          title: "cron",
+        },
+        component: Cron,
       },
     ],
   },

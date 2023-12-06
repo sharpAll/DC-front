@@ -2,9 +2,7 @@ import { defineStore } from "pinia";
 import { RouteLocationNormalized } from "vue-router";
 import { Storage } from "/@/utils/storage";
 import { userEnum } from "/@/enums/userEnum";
-import { PageEnum } from "/@/enums/pageEnum";
-// 不需要出现在标签页中的路由
-const whiteList: string[] = [PageEnum.BASE_LOGIN_NAME, PageEnum.REDIRECT_NAME];
+import { WhiteList } from "/@/enums/pageEnum";
 export type RouteItem = Partial<RouteLocationNormalized> & {
   fullPath: string;
   path: string;
@@ -37,7 +35,7 @@ export const useTabsViewStore = defineStore({
     },
     addTabs(route: RouteItem): boolean {
       // 添加标签页
-      if (whiteList.includes(route.name)) {
+      if (WhiteList.includes(route.name)) {
         return false;
       }
       const isExists = this.tabsList.some(
