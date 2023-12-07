@@ -17,8 +17,7 @@
           <n-icon size="22" class="user-icon">
             <UserOutlined />
           </n-icon>
-          <!-- <span class="name">{{ username }}</span> -->
-          <span class="name">夏博</span>
+          <span class="name">{{ username }}</span>
         </div>
       </n-dropdown>
     </div>

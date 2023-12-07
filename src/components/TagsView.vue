@@ -99,7 +99,7 @@ import { useUserStore } from "/@/store/user";
 import { useTabsViewStore } from "/@/store/tabsView";
 import { useAsyncRouteStore } from "/@/store/asyncRoute";
 import { RouteItem } from "/@/store/tabsView";
-import { PageEnum } from "/@/enums/pageEnum";
+import { PageEnum, WhiteList } from "/@/enums/pageEnum";
 import {
   DownOutlined,
   ReloadOutlined,
@@ -201,29 +201,19 @@ export default defineComponent({
     tabsViewStore.initTabs(cacheRoutes);
 
     // 移除缓存组件名称
-    const delKeepAliveCompName = () => {
-      if (route.meta.keepAlive) {
-        const name = router.currentRoute.value.matched.find(
-          (item) => item.name === route.name
-        )?.components?.default.name;
-        if (name) {
-          asyncRouteStore.keepAliveComponents =
-            asyncRouteStore.keepAliveComponents.filter((item) => item !== name);
-        }
+    const delKeepAliveCompName = (name: string) => {
+      if (name) {
+        asyncRouteStore.keepAliveComponents =
+          asyncRouteStore.keepAliveComponents.filter((item) => item !== name);
       }
     };
 
     // 标签页列表
     const tabsList: any = computed(() => tabsViewStore.tabsList);
-    const whiteList: string[] = [
-      PageEnum.BASE_LOGIN_NAME,
-      PageEnum.REDIRECT_NAME,
-    ];
-
     watch(
       () => route.fullPath,
       (to) => {
-        if (whiteList.includes(route.name as string)) {
+        if (WhiteList.includes(route.name as string)) {
           return;
         }
         state.activeKey = to;
@@ -245,7 +235,7 @@ export default defineComponent({
       if (tabsList.value.length === 1) {
         return message.warning("这已经是最后一页，不能再关闭了！");
       }
-      delKeepAliveCompName();
+      delKeepAliveCompName(route.name);
       tabsViewStore.closeCurrentTab(route);
       // 如果关闭的是当前页
       if (state.activeKey === route.fullPath) {
@@ -259,7 +249,7 @@ export default defineComponent({
 
     // 刷新页面
     const reloadPage = () => {
-      delKeepAliveCompName();
+      delKeepAliveCompName(route.name as string);
       router.push({
         path: PageEnum.REDIRECT + unref(route).fullPath,
       });
