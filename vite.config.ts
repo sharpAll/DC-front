@@ -3,6 +3,7 @@ import vue from "@vitejs/plugin-vue";
 import { join } from "path";
 import WindiCSS from "vite-plugin-windicss";
 import viteCompression from "vite-plugin-compression";
+import vueSetupExtend from "vite-plugin-vue-setup-extend";
 
 const resolve = (dir: string) => join(__dirname, dir);
 export default defineConfig({
@@ -19,6 +20,7 @@ export default defineConfig({
       algorithm: "gzip",
       ext: ".gz",
     }),
+    vueSetupExtend(),
   ],
   // 配置import.meta.env
   base: "/",
