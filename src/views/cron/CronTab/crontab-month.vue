@@ -1,7 +1,7 @@
 <template>
   <n-radio-group v-model:value="radioValue">
     <div class="mb-3">
-      <n-radio value="1">小时，允许的通配符[, - * /]</n-radio>
+      <n-radio value="1">月，允许的通配符[, - * /]</n-radio>
     </div>
     <div class="mb-3">
       <n-radio value="2">
@@ -10,18 +10,18 @@
           v-model:value="cycle01"
           size="tiny"
           class="w-80px inline-block relative z-99"
-          :min="0"
-          :max="59"
+          :min="1"
+          :max="12"
         />
         -
         <n-input-number
           v-model:value="cycle02"
           size="tiny"
           class="w-80px inline-block relative z-99"
-          :min="0"
-          :max="59"
+          :min="1"
+          :max="12"
         />
-        <span> 小时</span>
+        <span> 月</span>
       </n-radio>
     </div>
     <div class="mb-3">
@@ -31,18 +31,18 @@
           v-model:value="average01"
           size="tiny"
           class="w-80px inline-block relative z-99"
-          :min="0"
-          :max="59"
+          :min="1"
+          :max="12"
         />
-        <span> 小时开始，每 </span>
+        <span> 月开始，每 </span>
         <n-input-number
           v-model:value="average02"
           size="tiny"
           class="w-80px inline-block relative z-99"
           :min="1"
-          :max="59"
+          :max="12"
         />
-        <span> 小时执行一次</span>
+        <span> 月执行一次</span>
       </n-radio>
     </div>
     <div>
@@ -72,9 +72,9 @@ import {
   watch,
 } from "vue";
 const radioValue = ref("1");
-const cycle01 = ref(0);
-const cycle02 = ref(1);
-const average01 = ref(0);
+const cycle01 = ref(1);
+const cycle02 = ref(2);
+const average01 = ref(1);
 const average02 = ref(1);
 const checkboxList = ref([]);
 const checkBoxOpt = ref([]);
@@ -84,7 +84,7 @@ const props = defineProps<{
 const emit = defineEmits(["update"]);
 onBeforeMount(() => {
   checkBoxOpt.value = [];
-  for (let index = 0; index < 24; index++) {
+  for (let index = 1; index < 13; index++) {
     checkBoxOpt.value.push(index.toString().padStart(2, "0"));
   }
 });
@@ -114,16 +114,16 @@ onMounted(() => {
 function radioChange() {
   switch (radioValue.value) {
     case "1":
-      emit("update", "hour", "*");
+      emit("update", "month", "*");
       break;
     case "2":
-      emit("update", "hour", cycle01.value + "-" + cycle02.value);
+      emit("update", "month", cycle01.value + "-" + cycle02.value);
       break;
     case "3":
-      emit("update", "hour", average01.value + "/" + average02.value);
+      emit("update", "month", average01.value + "/" + average02.value);
       break;
     case "4":
-      emit("update", "hour", checkboxString.value);
+      emit("update", "month", checkboxString.value);
       break;
     default:
       break;
@@ -132,27 +132,31 @@ function radioChange() {
 // 周期两个值变化时
 function cycleChange() {
   if (radioValue.value === "2") {
-    emit("update", "hour", cycleTotal.value);
+    emit("update", "month", cycleTotal.value);
   }
 }
 // 平均两个值变化时
 function averageChange() {
   if (radioValue.value === "3") {
-    emit("update", "hour", averageTotal.value);
+    emit("update", "month", averageTotal.value);
   }
 }
 // checkbox值变化时
 function checkboxChange() {
   if (radioValue.value === "4") {
-    emit("update", "hour", checkboxString.value);
+    emit("update", "month", checkboxString.value);
   }
 }
 // 计算两个周期值
 const cycleTotal = computed(() => {
+  // cycle01.value = props.check(cycle01.value, 1, 12);
+  // cycle02.value = props.check(cycle02.value, 1, 12);
   return cycle01.value + "-" + cycle02.value;
 });
 // 计算平均用到的值
 const averageTotal = computed(() => {
+  // average01.value = props.check(average01.value, 1, 12);
+  // average02.value = props.check(average02.value, 1, 12);
   return average01.value + "/" + average02.value;
 });
 // 计算勾选的checkbox值合集

@@ -8,40 +8,37 @@
     <n-tab-pane :name="tabTitles[0]" :tab="tabTitles[0]">
       <CrontabSecond
         :init="contabValueObj.second"
-        :check="checkNumber"
         @update="updateContabValue"
       />
     </n-tab-pane>
     <n-tab-pane :name="tabTitles[1]" :tab="tabTitles[1]">
       <CrontabMinute
         :init="contabValueObj.minute"
-        :check="checkNumber"
         @update="updateContabValue"
       />
     </n-tab-pane>
     <n-tab-pane :name="tabTitles[2]" :tab="tabTitles[2]">
-      <CrontabHour
-        :init="contabValueObj.hour"
-        :check="checkNumber"
-        @update="updateContabValue"
-      />
+      <CrontabHour :init="contabValueObj.hour" @update="updateContabValue" />
     </n-tab-pane>
     <n-tab-pane :name="tabTitles[3]" :tab="tabTitles[3]">
       <CrontabDay
         :init="contabValueObj.day"
-        :check="checkNumber"
         :week="contabValueObj.week"
         @update="updateContabValue"
       ></CrontabDay>
     </n-tab-pane>
     <n-tab-pane :name="tabTitles[4]" :tab="tabTitles[4]">
-      {{ tabTitles[4] }}
+      <CrontabMonth :init="contabValueObj.month" @update="updateContabValue" />
     </n-tab-pane>
     <n-tab-pane :name="tabTitles[5]" :tab="tabTitles[5]">
-      {{ tabTitles[5] }}
+      <CrontabWeek
+        :init="contabValueObj.week"
+        :day="contabValueObj.day"
+        @update="updateContabValue"
+      ></CrontabWeek>
     </n-tab-pane>
     <n-tab-pane :name="tabTitles[6]" :tab="tabTitles[6]">
-      {{ tabTitles[6] }}
+      <CrontabYear :init="contabValueObj.year" @update="updateContabValue" />
     </n-tab-pane>
   </n-tabs>
   <div class="popup-result">
@@ -64,7 +61,7 @@
           <span>{{ contabValueObj.day }}</span>
         </td>
         <td>
-          <span>{{ contabValueObj.mouth }}</span>
+          <span>{{ contabValueObj.month }}</span>
         </td>
         <td>
           <span>{{ contabValueObj.week }}</span>
@@ -81,11 +78,14 @@
   </div>
 </template>
 <script setup lang="ts" name="Cron">
-import { ref, reactive, computed } from "vue";
+import { ref, reactive, computed, watch } from "vue";
 import CrontabSecond from "./crontab-second.vue";
 import CrontabMinute from "./crontab-minute.vue";
 import CrontabHour from "./crontab-hour.vue";
 import CrontabDay from "./crontab-day.vue";
+import CrontabMonth from "./crontab-month.vue";
+import CrontabWeek from "./crontab-week.vue";
+import CrontabYear from "./crontab-year.vue";
 const tabTitles = ref(["秒", "分", "时", "日", "月", "周", "年"]);
 const tabActive = ref("秒");
 const contabValueObj = reactive({
@@ -93,23 +93,13 @@ const contabValueObj = reactive({
   minute: "*",
   hour: "*",
   day: "*",
-  mouth: "*",
+  month: "*",
   week: "?",
   year: "",
 });
 // 由子组件触发，更改表达式组成的字段值
 const updateContabValue = function (name, value) {
   contabValueObj[name] = value;
-};
-const checkNumber = function (value, minLimit, maxLimit) {
-  // 检查必须为整数
-  value = Math.floor(value);
-  if (value < minLimit) {
-    value = minLimit;
-  } else if (value > maxLimit) {
-    value = maxLimit;
-  }
-  return value;
 };
 const contabValueString = computed(() => {
   const str =
@@ -121,12 +111,26 @@ const contabValueString = computed(() => {
     " " +
     contabValueObj.day +
     " " +
-    contabValueObj.mouth +
+    contabValueObj.month +
     " " +
     contabValueObj.week +
     (contabValueObj.year === "" ? "" : " " + contabValueObj.year);
   return str;
 });
+// function dayChange() {
+//   // 判断week值与day不能同时为“?”
+//   if (contabValueObj.day === "?" && contabValueObj.week === "?") {
+//     contabValueObj.week = "*";
+//   } else if (contabValueObj.day !== "?" && contabValueObj.week !== "?") {
+//     contabValueObj.week = "?";
+//   }
+// }
+// watch(
+//   () => contabValueObj.day,
+//   () => {
+//     dayChange();
+//   }
+// );
 </script>
 <style lang="css" scoped>
 .popup-main {

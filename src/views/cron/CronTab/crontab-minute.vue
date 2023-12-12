@@ -79,7 +79,6 @@ const average02 = ref(1);
 const checkboxList = ref([]);
 const checkBoxOpt = ref([]);
 const props = defineProps<{
-  check: Function;
   init: string;
 }>();
 const emit = defineEmits(["update"]);
@@ -150,14 +149,10 @@ function checkboxChange() {
 }
 // 计算两个周期值
 const cycleTotal = computed(() => {
-  // cycle01.value = props.check(cycle01.value, 0, 59);
-  // cycle02.value = props.check(cycle02.value, 0, 59);
   return cycle01.value + "-" + cycle02.value;
 });
 // 计算平均用到的值
 const averageTotal = computed(() => {
-  // average01.value = props.check(average01.value, 0, 59);
-  // average02.value = props.check(average02.value, 1, 59);
   return average01.value + "/" + average02.value;
 });
 // 计算勾选的checkbox值合集
