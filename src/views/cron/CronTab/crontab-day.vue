@@ -80,7 +80,7 @@
   </n-radio-group>
 </template>
 
-<script setup lang="ts" name="CronSecond">
+<script setup lang="ts" name="CronDay">
 import {
   ref,
   reactive,
@@ -260,8 +260,6 @@ watch(
 watch(
   () => props.week,
   () => {
-    debugger
-    console.log(props.week);
     weekChange();
   }
 );

@@ -64,7 +64,7 @@
   </n-radio-group>
 </template>
 
-<script setup lang="ts" name="CronSecond">
+<script setup lang="ts" name="CronYear">
 import {
   ref,
   reactive,
@@ -97,7 +97,7 @@ onBeforeMount(() => {
 });
 onMounted(() => {
   // 初始化值
-  if (props.init !== "*") {
+  if (props.init === "*") {
     radioValue.value = "2";
     return;
   }

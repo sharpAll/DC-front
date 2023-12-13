@@ -3,6 +3,7 @@
     v-model:value="tabActive"
     type="line"
     :tab-style="{ padding: '10px' }"
+    justify-content="space-between"
     animated
   >
     <n-tab-pane :name="tabTitles[0]" :tab="tabTitles[0]">
@@ -20,7 +21,12 @@
     <n-tab-pane :name="tabTitles[2]" :tab="tabTitles[2]">
       <CrontabHour :init="contabValueObj.hour" @update="updateContabValue" />
     </n-tab-pane>
-    <n-tab-pane :name="tabTitles[3]" :tab="tabTitles[3]">
+    <!-- 不使用display-directive当导致监听props出错 -->
+    <n-tab-pane
+      display-directive="show"
+      :name="tabTitles[3]"
+      :tab="tabTitles[3]"
+    >
       <CrontabDay
         :init="contabValueObj.day"
         :week="contabValueObj.week"
@@ -30,7 +36,11 @@
     <n-tab-pane :name="tabTitles[4]" :tab="tabTitles[4]">
       <CrontabMonth :init="contabValueObj.month" @update="updateContabValue" />
     </n-tab-pane>
-    <n-tab-pane :name="tabTitles[5]" :tab="tabTitles[5]">
+    <n-tab-pane
+      display-directive="show"
+      :name="tabTitles[5]"
+      :tab="tabTitles[5]"
+    >
       <CrontabWeek
         :init="contabValueObj.week"
         :day="contabValueObj.day"
@@ -76,6 +86,7 @@
       <span>{{ contabValueString }}</span>
     </div>
   </div>
+  <CrontabResult :ex="contabValueString"></CrontabResult>
 </template>
 <script setup lang="ts" name="Cron">
 import { ref, reactive, computed, watch } from "vue";
@@ -86,6 +97,7 @@ import CrontabDay from "./crontab-day.vue";
 import CrontabMonth from "./crontab-month.vue";
 import CrontabWeek from "./crontab-week.vue";
 import CrontabYear from "./crontab-year.vue";
+import CrontabResult from "./crontab-result.vue";
 const tabTitles = ref(["秒", "分", "时", "日", "月", "周", "年"]);
 const tabActive = ref("秒");
 const contabValueObj = reactive({
@@ -117,20 +129,37 @@ const contabValueString = computed(() => {
     (contabValueObj.year === "" ? "" : " " + contabValueObj.year);
   return str;
 });
-// function dayChange() {
-//   // 判断week值与day不能同时为“?”
-//   if (contabValueObj.day === "?" && contabValueObj.week === "?") {
-//     contabValueObj.week = "*";
-//   } else if (contabValueObj.day !== "?" && contabValueObj.week !== "?") {
-//     contabValueObj.week = "?";
-//   }
-// }
-// watch(
-//   () => contabValueObj.day,
-//   () => {
-//     dayChange();
-//   }
-// );
+/** 创建v-model属性start */
+const emit = defineEmits(["input", "update:value"]);
+watch(
+  () => contabValueString.value,
+  () => {
+    emit("input", contabValueString.value);
+    emit("update:value", contabValueString.value);
+  }
+);
+const props = defineProps<{
+  value: string;
+}>();
+watch(
+  () => props.value,
+  (v) => {
+    if (v !== null && v !== undefined) {
+      const array = v.split(" ");
+      if (array.length >= 6) {
+        contabValueObj.second = array[0];
+        contabValueObj.minute = array[1];
+        contabValueObj.hour = array[2];
+        contabValueObj.day = array[3];
+        contabValueObj.month = array[4];
+        contabValueObj.week = array[5];
+        contabValueObj.year = array[6] || "";
+      }
+    }
+  },
+  { immediate: true }
+);
+/** 创建v-model属性end */
 </script>
 <style lang="css" scoped>
 .popup-main {

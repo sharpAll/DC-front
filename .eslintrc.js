@@ -94,7 +94,7 @@ module.exports = {
     // 强制使用一致的缩进
     indent: "off",
     // 强制可嵌套的块的最大深度4
-    "max-depth": "warn",
+    "max-depth": "off",
     // 强制每一行中所允许的最大语句数量
     "max-statements-per-line": ["warn", { max: 1 }],
     // 要求方法链中每个调用都有一个换行符

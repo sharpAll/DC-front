@@ -61,7 +61,7 @@
   </n-radio-group>
 </template>
 
-<script setup lang="ts" name="CronSecond">
+<script setup lang="ts" name="CronMinute">
 import {
   ref,
   reactive,

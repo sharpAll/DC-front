@@ -75,7 +75,7 @@
   </n-radio-group>
 </template>
 
-<script setup lang="ts" name="CronSecond">
+<script setup lang="ts" name="CronWeek">
 import {
   ref,
   reactive,
@@ -271,8 +271,6 @@ watch(
 watch(
   () => props.day,
   () => {
-    debugger;
-    console.log(props.week);
     dayChange();
   }
 );
