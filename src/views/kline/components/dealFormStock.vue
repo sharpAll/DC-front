@@ -13,45 +13,35 @@
         <div class="flex">
           <div class="flex-1 text-left">卖五</div>
           <div class="flex-1 text-center">
-            <span class="text-down cursor-pointer" @click="selectPrice"
-              >1897.79</span
-            >
+            <span class="text-down cursor-pointer" @click="selectPrice">1897.79</span>
           </div>
           <div class="flex-1 text-right">12</div>
         </div>
         <div class="flex">
           <div class="flex-1 text-left">卖四</div>
           <div class="flex-1 text-center">
-            <span class="text-down cursor-pointer" @click="selectPrice"
-              >1897.78</span
-            >
+            <span class="text-down cursor-pointer" @click="selectPrice">1897.78</span>
           </div>
           <div class="flex-1 text-right">12</div>
         </div>
         <div class="flex">
           <div class="flex-1 text-left">卖三</div>
           <div class="flex-1 text-center">
-            <span class="text-down cursor-pointer" @click="selectPrice"
-              >1897.77</span
-            >
+            <span class="text-down cursor-pointer" @click="selectPrice">1897.77</span>
           </div>
           <div class="flex-1 text-right">12</div>
         </div>
         <div class="flex">
           <div class="flex-1 text-left">卖二</div>
           <div class="flex-1 text-center">
-            <span class="text-down cursor-pointer" @click="selectPrice"
-              >1897.76</span
-            >
+            <span class="text-down cursor-pointer" @click="selectPrice">1897.76</span>
           </div>
           <div class="flex-1 text-right">12</div>
         </div>
         <div class="flex">
           <div class="flex-1 text-left">卖一</div>
           <div class="flex-1 text-center">
-            <span class="text-down cursor-pointer" @click="selectPrice"
-              >1897.75</span
-            >
+            <span class="text-down cursor-pointer" @click="selectPrice">1897.75</span>
           </div>
           <div class="flex-1 text-right">12</div>
         </div>
@@ -60,45 +50,35 @@
         <div class="flex">
           <div class="flex-1 text-left">买一</div>
           <div class="flex-1 text-center">
-            <span class="text-down cursor-pointer" @click="selectPrice"
-              >1897.74</span
-            >
+            <span class="text-down cursor-pointer" @click="selectPrice">1897.74</span>
           </div>
           <div class="flex-1 text-right">12</div>
         </div>
         <div class="flex">
           <div class="flex-1 text-left">买二</div>
           <div class="flex-1 text-center">
-            <span class="text-down cursor-pointer" @click="selectPrice"
-              >1897.73</span
-            >
+            <span class="text-down cursor-pointer" @click="selectPrice">1897.73</span>
           </div>
           <div class="flex-1 text-right">12</div>
         </div>
         <div class="flex">
           <div class="flex-1 text-left">买三</div>
           <div class="flex-1 text-center">
-            <span class="text-down cursor-pointer" @click="selectPrice"
-              >1897.72</span
-            >
+            <span class="text-down cursor-pointer" @click="selectPrice">1897.72</span>
           </div>
           <div class="flex-1 text-right">12</div>
         </div>
         <div class="flex">
           <div class="flex-1 text-left">买四</div>
           <div class="flex-1 text-center">
-            <span class="text-down cursor-pointer" @click="selectPrice"
-              >1897.71</span
-            >
+            <span class="text-down cursor-pointer" @click="selectPrice">1897.71</span>
           </div>
           <div class="flex-1 text-right">12</div>
         </div>
         <div class="flex">
           <div class="flex-1 text-left">买五</div>
           <div class="flex-1 text-center">
-            <span class="text-down cursor-pointer" @click="selectPrice"
-              >1897.70</span
-            >
+            <span class="text-down cursor-pointer" @click="selectPrice">1897.70</span>
           </div>
           <div class="flex-1 text-right">12</div>
         </div>
@@ -118,7 +98,7 @@
         </div>
       </div>
     </div>
-    <div class="h-300px flex-shrink-0 flex flex-col">
+    <div class="h-299px flex-shrink-0 flex flex-col">
       <div class="flex-auto border-gray-200 border-b text-center pt-4">
         <n-radio-group v-model:value="dealType">
           <n-radio-button value="buy" label="买 入" />
@@ -128,11 +108,7 @@
           <div class="flex items-center mb-2">
             <div class="w-70px">委托价格</div>
             <div class="flex-1">
-              <n-input-number
-                v-model:value="dealForm.price"
-                clearable
-                placeholder="元"
-              />
+              <n-input-number v-model:value="dealForm.price" clearable placeholder="元" />
             </div>
           </div>
           <template v-if="dealType == 'buy'">
@@ -154,23 +130,24 @@
           <div class="flex items-center">
             <div class="w-70px">委托数量</div>
             <div class="flex-1">
-              <n-input-number
-                v-model:value="dealForm.count"
-                :step="100"
-                clearable
-                placeholder="股"
-              />
+              <n-input-number v-model:value="dealForm.count" :step="100" clearable placeholder="股" />
             </div>
           </div>
         </div>
+        <div class="text-center pt-4 px-2">
+          <template v-if="dealType == 'buy'">
+            <n-button type="error" block>确认买入</n-button>
+          </template>
+          <template v-else>
+            <n-button type="primary" block>确认卖出</n-button>
+          </template>
+        </div>
       </div>
-      <div class="h-50px text-center pt-2">
+      <!-- <div class="h-50px text-center pt-2">
         <n-button class="mr-6" @click="checkList">查 询</n-button>
-        <template v-if="dealType == 'buy'"
-          ><n-button type="error">确认买入</n-button></template
-        >
+        <template v-if="dealType == 'buy'"><n-button type="error">确认买入</n-button></template>
         <template v-else><n-button type="primary">确认卖出</n-button></template>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>

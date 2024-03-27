@@ -159,8 +159,22 @@
             </div>
           </div>
         </div>
+        <div class="text-center pt-4 px-2">
+          <template v-if="dealType == 'bo'"
+            ><n-button type="error" block>买入开仓</n-button>
+          </template>
+          <template v-else-if="dealType == 'bc'"
+            ><n-button type="error" ghost block>买入平仓</n-button>
+          </template>
+          <template v-else-if="dealType == 'so'"
+            ><n-button type="primary" block>卖出开仓</n-button>
+          </template>
+          <template v-else
+            ><n-button type="primary" ghost block>卖出平仓</n-button></template
+          >
+        </div>
       </div>
-      <div class="h-50px text-center pt-2">
+      <!-- <div class="h-50px text-center pt-2">
         <n-button class="mr-6" @click="checkList">查 询</n-button>
         <template v-if="dealType == 'bo'"
           ><n-button type="error">买入开仓</n-button>
@@ -174,7 +188,7 @@
         <template v-else
           ><n-button type="primary" ghost>卖出平仓</n-button></template
         >
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
